@@ -1,0 +1,2 @@
+#define IDR_VJOYDLL 101
+IDR_VJOYDLL RCDATA "vJoyInterface.dll"
