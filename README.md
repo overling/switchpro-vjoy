@@ -83,6 +83,10 @@ install.ps1 [-InstallDir DIR] [-GameExe PATH] [-Devices N]
 Place `vJoySetup.exe` and `HidHide_*.exe` (from their official
 releases) in a `drivers/` folder next to the script.
 
+`hide-pads.ps1` (with `HIDE-PADS.bat` wrapper) re-applies HidHide
+rules for controllers paired *after* install — run it once whenever
+a new pad shows up as a dead entry in `joy.cpl`.
+
 ## Notes
 
 - vJoy reports are change-driven — the feeder streams continuously;

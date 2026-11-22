@@ -146,7 +146,7 @@ if (-not $NoHidHide) {
             }
             if ($hidden -eq 0) {
                 Warn "No Pro Controller currently connected - its dead entry won't be hidden."
-                Warn "Pair the controller, then re-run install.ps1 to hide it."
+                Warn "Pair the controller, wake it, then run HIDE-PADS.bat to hide it."
             }
         } catch { Warn "Could not parse HidHide device list: $($_.Exception.Message)" }
         Info "HidHide configured (physical pad hidden from apps except feeder/game)"
