@@ -33,7 +33,7 @@ if (-not $pr.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
 
 $hidhideCli = 'C:\Program Files\Nefarius Software Solutions\HidHide\x64\HidHideCLI.exe'
 if (-not (Test-Path $hidhideCli)) {
-    Fail "HidHide not installed. Run INSTALL.bat first (it installs HidHide), then re-run this."
+    Fail "HidHide not installed. It is opt-in: re-run install.ps1 -WithHidHide, then re-run this."
 }
 
 $exe = Join-Path $InstallDir 'switchpro_vjoy.exe'

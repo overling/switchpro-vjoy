@@ -10,12 +10,17 @@
 #   5. Copies the feeder to %LOCALAPPDATA%\SwitchProBridge and autostarts it
 #
 # Usage:  install.ps1 [-InstallDir DIR] [-GameExe PATH] [-Devices N]
-#                     [-NoHidHide] [-NoAutostart]
+#                     [-WithHidHide] [-NoAutostart]
+# HidHide is OPT-IN (-WithHidHide): it hides the physical pad's dead
+# duplicate entry in joy.cpl but needs per-exe whitelisting, which can
+# break game input when exe paths change. Without it everything still
+# works - joy.cpl just shows the dead entry next to the vJoy devices.
 
 param(
     [string]$InstallDir = "$env:LOCALAPPDATA\SwitchProBridge",
     [string]$GameExe   = "",
     [int]$Devices     = 2,
+    [switch]$WithHidHide,
     [switch]$NoHidHide,
     [switch]$NoAutostart
 )
@@ -109,9 +114,9 @@ $vbsLine = 'CreateObject("Wscript.Shell").Run """' + $exe + '"" --auto", 0, Fals
 Set-Content -Path $vbs -Value $vbsLine -Encoding ASCII
 Set-Content -Path (Join-Path $InstallDir 'SwitchProBridge.bat') -Value "@echo off`r`n`"$exe`" --auto`r`npause" -Encoding ASCII
 
-# ---------- 5. HidHide (hide the dead physical entry) ----------
+# ---------- 5. HidHide (opt-in: hide the dead physical entry) ----------
 $hidhideCli = 'C:\Program Files\Nefarius Software Solutions\HidHide\x64\HidHideCLI.exe'
-if (-not $NoHidHide) {
+if ($WithHidHide -and -not $NoHidHide) {
     if (-not (Test-Path $hidhideCli)) {
         $hh = Join-Path $PkgDir 'drivers\HidHide_1.5.230_x64.exe'
         if (Test-Path $hh) {
@@ -167,7 +172,8 @@ if (-not $NoHidHide) {
         Info "HidHide configured (physical pad hidden from apps except feeder/game)"
     }
 } else {
-    Warn "HidHide step skipped (-NoHidHide) - joy.cpl will show a second, dead entry"
+    Warn "HidHide skipped (opt-in: pass -WithHidHide to enable)"
+    Warn "joy.cpl will show the physical pad's dead entry next to the vJoy devices - harmless"
 }
 
 # ---------- 6. autostart ----------
@@ -189,4 +195,4 @@ Write-Host ""
 Write-Host "The feeder runs hidden at login. To watch it live, run:"
 Write-Host "  $InstallDir\SwitchProBridge.bat"
 Write-Host ""
-if ($GameExe) { Info "Game exe whitelisted for physical pad access: $GameExe" }
+if ($WithHidHide -and $GameExe) { Info "Game exe whitelisted for physical pad access: $GameExe" }
