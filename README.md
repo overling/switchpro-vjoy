@@ -70,14 +70,16 @@ embedded into the exe, not committed.
 
 ## Installer
 
-`install.ps1` automates the whole setup: silent vJoy + HidHide driver
-install, vJoy device configuration, `vJoy N` device naming, feeder
-deploy to `%LOCALAPPDATA%\SwitchProBridge`, autostart registration,
-and hiding the physical pad's dead entry via HidHide.
+`install.ps1` automates the whole setup: silent vJoy driver install,
+vJoy device configuration, `vJoy N` device naming, feeder deploy to
+`%LOCALAPPDATA%\SwitchProBridge`, and autostart registration.
+HidHide (which hides the physical pad's dead duplicate entry) is
+**opt-in** via `-WithHidHide` — off by default because its per-app
+whitelisting can break game input when exe paths change.
 
 ```
 install.ps1 [-InstallDir DIR] [-GameExe PATH] [-Devices N]
-            [-NoHidHide] [-NoAutostart]
+            [-WithHidHide] [-NoAutostart]
 ```
 
 Place `vJoySetup.exe` and `HidHide_*.exe` (from their official
