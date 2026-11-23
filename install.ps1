@@ -126,10 +126,25 @@ if (-not $NoHidHide) {
     }
     if (Test-Path $hidhideCli) {
         & $hidhideCli --cloak-on | Out-Null
-        # whitelist feeder + game + hidhide itself
+        # whitelist feeder + hidhide itself
         & $hidhideCli --app-reg "`"$exe`"" | Out-Null
         & $hidhideCli --app-reg "`"$hidhideCli`"" | Out-Null
-        if ($GameExe -and (Test-Path $GameExe)) { & $hidhideCli --app-reg "`"$GameExe`"" | Out-Null }
+        # whitelist the game: explicit -GameExe, else every exe beside the
+        # package folder's parent (the package normally sits inside the game dir)
+        $games = @()
+        if ($GameExe -and (Test-Path $GameExe)) { $games += $GameExe }
+        else {
+            $parent = Split-Path -Parent $PkgDir
+            $games += Get-ChildItem -Path $parent -Filter '*.exe' -File -ErrorAction SilentlyContinue |
+                ForEach-Object { $_.FullName }
+        }
+        foreach ($g in ($games | Select-Object -Unique)) {
+            & $hidhideCli --app-reg "`"$g`"" | Out-Null
+            Info "Whitelisted for physical pad access: $g"
+        }
+        if (-not $GameExe -and $games.Count -eq 0) {
+            Warn "No game exe found near the package - pass -GameExe `"C:\path\to\game.exe`" and re-run"
+        }
         # hide every connected Nintendo Pro Controller (VID 057E PID 2009)
         $json = & $hidhideCli --dev-all | Out-String
         try {

@@ -37,13 +37,24 @@ if (-not (Test-Path $hidhideCli)) {
 }
 
 $exe = Join-Path $InstallDir 'switchpro_vjoy.exe'
+$PkgDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 & $hidhideCli --cloak-on | Out-Null
 & $hidhideCli --app-reg "`"$exe`"" | Out-Null
 & $hidhideCli --app-reg "`"$hidhideCli`"" | Out-Null
-if ($GameExe -and (Test-Path $GameExe)) {
-    & $hidhideCli --app-reg "`"$GameExe`"" | Out-Null
-    Info "Whitelisted game: $GameExe"
+
+# Whitelist the game: explicit -GameExe, else every exe beside the package's
+# parent folder (the package normally sits inside the game directory).
+$games = @()
+if ($GameExe -and (Test-Path $GameExe)) { $games += $GameExe }
+else {
+    $parent = Split-Path -Parent $PkgDir
+    $games += Get-ChildItem -Path $parent -Filter '*.exe' -File -ErrorAction SilentlyContinue |
+        ForEach-Object { $_.FullName }
+}
+foreach ($g in ($games | Select-Object -Unique)) {
+    & $hidhideCli --app-reg "`"$g`"" | Out-Null
+    Info "Whitelisted for physical pad access: $g"
 }
 
 # Hide every connected Nintendo Bluetooth HID device (VID 057E).
